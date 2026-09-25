@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cofres
 
-## Getting Started
+App web mobile-first (PWA) para metas financeiras em "cofres": aportes fixos (parcelas 01/80…) ou variáveis, e registro de rendimentos CDI.
 
-First, run the development server:
+Stack: Next.js 16 (App Router) · TypeScript · Tailwind v4 · Drizzle ORM · PostgreSQL · Auth.js v5 (Credentials + bcrypt).
+
+## Desenvolvimento
 
 ```bash
+npm install
+echo "AUTH_SECRET=$(openssl rand -base64 32)" > .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run dev` sobe um servidor PostgreSQL embutido ([PGlite](https://pglite.dev), dados em `./.pglite`, porta 5433), aplica as migrations e inicia o Next. Não precisa instalar Postgres.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> O PGlite roda como servidor separado porque o Next 16 renderiza em vários processos, e o PGlite só pode ser aberto por um processo por vez.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Outros scripts:
 
-## Learn More
+| Script                | O que faz                                         |
+| --------------------- | ------------------------------------------------- |
+| `npm run db:generate` | Gera migration após mudar `src/db/schema.ts`      |
+| `npm run db:migrate`  | Aplica migrations em `DATABASE_URL`               |
+| `npm run db:server`   | Só o servidor PGlite (para usar `db:studio` etc.) |
+| `npm run db:studio`   | Drizzle Studio                                    |
 
-To learn more about Next.js, take a look at the following resources:
+## Produção
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Variáveis de ambiente:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `DATABASE_URL`: PostgreSQL (`postgres://user:pass@host:5432/cofres`)
+- `AUTH_SECRET`: segredo do Auth.js
+- `CDI_ANNUAL_RATE` (opcional): taxa anual de reserva, usada só se a API do Banco Central estiver fora do ar (padrão `0.1365`)
+- `DB_POOL_MAX` (opcional): conexões por processo (padrão 10; o `npm run dev` usa 1 porque o servidor PGlite não aguenta muitas conexões em paralelo)
+- `UPLOAD_DIR` (opcional): pasta das imagens (padrão `./storage/uploads`; precisa ser persistente)
 
-## Deploy on Vercel
+```bash
+npm run db:migrate && npm run build && npm start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Estrutura
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/(auth)/            login, register
+  app/(dashboard)/       dashboard, cofre/novo, cofre/[id], cofre/[id]/editar
+  app/api/uploads/       serve imagens (checa sessão e dono)
+  components/ui/         base: botões, inputs, switch, sheet, progress
+  components/cofres/     CofreCard, formulários, Timeline, sheets de aporte/rendimento
+  db/                    schema Drizzle + conexão
+  server/actions/        Server Actions (camada fina: sessão + FormData)
+  server/services/       regras de negócio (tríade, parcelas, CDI, storage)
+  server/repositories/   acesso ao banco
+  proxy.ts               proteção de rotas (antigo middleware)
+```
+
+## Regras principais
+
+- **Tríade**: com duas entre meta, duração e depósito mensal, o sistema calcula a terceira (`server/services/triad.ts`). A duração é arredondada para cima; a última parcela fica com o que faltar, para o total bater exatamente com a meta.
+- **Parcelas fixas**: o valor da parcela é calculado no servidor e o que vier do cliente é ignorado. Um índice único `(cofre_id, parcel_number)` impede pagar a mesma parcela duas vezes. Só dá para desfazer a última parcela, para a numeração não ficar com buracos.
+- **Variável**: aporte livre; basta a meta.
+- **CDI**: taxa diária oficial do Banco Central (SGS série 12), guardada na tabela `cdi_rates` e atualizada sob demanda. Cada aporte é um lote que rende juros compostos em cada dia útil, a partir da **própria data**. O IOF regressivo (96% no dia 1 até 0% a partir do dia 30) é descontado conforme a idade de cada aporte. A estimativa mostra o líquido acumulado menos os rendimentos já registrados. O valor registrado continua sendo o que o usuário confirmar. Cálculo em `server/services/yield-calc.ts`.
+- **Data do aporte**: pode ser retroativa, para lançar aportes antigos e o rendimento sair certo.
+- **Resumo** (`/resumo`, clicando no card de total): aportes por mês de todos os cofres, em barras empilhadas por cofre.
+- O plano (meta/duração/parcela) fica travado depois de criado; só dá para editar nome, imagem e o CDI.

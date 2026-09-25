@@ -1,0 +1,42 @@
+{
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.tsserver.maxTsServerMemory": 4096,
+	"typescript.tsserver.experimental.enableProjectDiagnostics": false,
+	"typescript.tsserver.log": "off",
+	"files.watcherExclude": {
+		"**/node_modules/**": true,
+		"**/dist/**": true,
+		"**/.next/**": true,
+		"**/coverage/**": true,
+		"**/build/**": true,
+		"**/tmp/**": true
+	},
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/dist": true,
+		"**/.next": true,
+		"**/coverage": true,
+		"**/build": true,
+		"**/tmp": true
+	},
+	"files.exclude": {
+		"**/.turbo": true,
+		"**/.cache": true
+	},
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.tabSize": 4,
+	"editor.insertSpaces": false,
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
+}

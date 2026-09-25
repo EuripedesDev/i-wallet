@@ -1,0 +1,20 @@
+{
+	"recommendations": [
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"bradlc.vscode-tailwindcss",
+		"usernamehw.errorlens",
+		"EditorConfig.EditorConfig",
+		"christian-kohler.path-intellisense",
+		"mikestead.dotenv",
+		"eamodio.gitlens",
+		"PKief.material-icon-theme",
+		"ms-azuretools.vscode-docker",
+		"rangav.vscode-thunder-client",
+		"mtxr.sqltools",
+		"redhat.vscode-yaml",
+		"Gruntfuggly.todo-tree",
+		"aaron-bond.better-comments",
+		"Anthropic.claude-code"
+	]
+}

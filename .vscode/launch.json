@@ -1,0 +1,19 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Next: Dev (F5 - server debug)",
+			"type": "node",
+			"request": "launch",
+			"runtimeExecutable": "yarn",
+			"runtimeArgs": ["dev"],
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"restart": true,
+			"env": {
+				"NODE_OPTIONS": "--inspect=0.0.0.0:9229"
+			},
+			"skipFiles": ["<node_internals>/**"]
+		}
+	]
+}

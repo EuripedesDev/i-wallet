@@ -1,0 +1,25 @@
+{
+	"printWidth": 120,
+	"tabWidth": 4,
+	"useTabs": true,
+
+	"singleQuote": true,
+	"semi": true,
+
+	"trailingComma": "all",
+	"bracketSameLine": true,
+
+	"arrowParens": "avoid",
+	"proseWrap": "never",
+	"plugins": ["prettier-plugin-tailwindcss", "prettier-plugin-organize-imports"],
+	"tailwindStylesheet": "./src/app/globals.css",
+	"overrides": [
+		{
+			"files": ["**/*.yml", "**/*.yaml"],
+			"options": {
+				"tabWidth": 2,
+				"useTabs": false
+			}
+		}
+	]
+}
