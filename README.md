@@ -33,7 +33,8 @@ Variáveis de ambiente:
 - `AUTH_SECRET`: segredo do Auth.js
 - `CDI_ANNUAL_RATE` (opcional): taxa anual de reserva, usada só se a API do Banco Central estiver fora do ar (padrão `0.1365`)
 - `DB_POOL_MAX` (opcional): conexões por processo (padrão 10; o `npm run dev` usa 1 porque o servidor PGlite não aguenta muitas conexões em paralelo)
-- `UPLOAD_DIR` (opcional): pasta das imagens (padrão `./storage/uploads`; precisa ser persistente)
+- `BLOB_STORE_ID` ou `BLOB_READ_WRITE_TOKEN` (Vercel): criadas ao conectar um Blob store **privado** ao projeto; com uma delas, as imagens vão para o Blob, sem nenhuma vão para o disco
+- `UPLOAD_DIR` (opcional, só sem Blob): pasta das imagens (padrão `./storage/uploads`; precisa ser persistente)
 
 ```bash
 npm run db:migrate && npm run build && npm start
